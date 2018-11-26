@@ -26,7 +26,6 @@ void displayIntroduction()
 //Convert the time into a standard format and display it.
 void displayTime(int* pTime)
 {
-	cout << *pTime << endl;
 	//time is in minutes.
 	int days = *pTime / 3600; //calculate the number of days from time. (range from 0-infinite) (not used in this program.)
 	int hours = (*pTime % 3600) / 60; //calculate the number of hours from time. (range from 0-23)
@@ -50,7 +49,6 @@ void displayTime(int* pTime)
 	{
 		cout << " AM\n";
 	}
-	cout << *pTime << endl;
 }
 
 //Get a command and object from the user with one cin and seperate them.

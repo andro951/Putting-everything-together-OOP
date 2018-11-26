@@ -1,4 +1,4 @@
-//Interactive fiction.
+//Escape Room Game.
 #include <iostream>
 #include <string>
 #include "functions.h"
@@ -196,6 +196,7 @@ int main()
 						cout << "You pick up the handgun.\n";
 						Object::s_EmptyHands -= 1;
 						Object::s_Time += 1;
+						Object::s_CarryingHandgun = true;
 					}
 					else //Don't have enough empty hands.
 					{
