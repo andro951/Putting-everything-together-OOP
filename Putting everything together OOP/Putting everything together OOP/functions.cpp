@@ -5,7 +5,11 @@ using namespace std;
 //Display a simple opening message.
 void displayIntroduction()
 {
-	cout << "You wake up in a dark room.\n"
+	string name;
+	cout << "Enter your name: ";
+	name = getInput();
+	cout << "Hello, " << name << ".  You are not having a great day.\n"
+		<< "You wake up in a dark room.\n"
 		<< "You aren't sure where you are or how you got there.\n"
 		<< "You soon realize that you are in a hotel room.\n"
 		<< "You try to get up, but your hands are handcuffed to the radiator.\n\n\n"
@@ -20,12 +24,13 @@ void displayIntroduction()
 }
 
 //Convert the time into a standard format and display it.
-void displayTime(int& time)
+void displayTime(int* pTime)
 {
+	cout << *pTime << endl;
 	//time is in minutes.
-	int days = time / 3600; //calculate the number of days from time. (range from 0-infinite) (not used in this program.)
-	int hours = (time % 3600) / 60; //calculate the number of hours from time. (range from 0-23)
-	int minutes = time % 60; //calculate the number of minutes. (range from 0-59)
+	int days = *pTime / 3600; //calculate the number of days from time. (range from 0-infinite) (not used in this program.)
+	int hours = (*pTime % 3600) / 60; //calculate the number of hours from time. (range from 0-23)
+	int minutes = *pTime % 60; //calculate the number of minutes. (range from 0-59)
 	cout << "The current time is: ";
 	if (hours % 12 < 10) //Convert hours from 24 hour to 12 hour time. If it is < 10, output a zero to make it look like a clock would.
 	{
@@ -45,6 +50,7 @@ void displayTime(int& time)
 	{
 		cout << " AM\n";
 	}
+	cout << *pTime << endl;
 }
 
 //Get a command and object from the user with one cin and seperate them.

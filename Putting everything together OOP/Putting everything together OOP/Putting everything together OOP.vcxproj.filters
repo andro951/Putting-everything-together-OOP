@@ -21,9 +21,15 @@
     <ClCompile Include="functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Objects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functions.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

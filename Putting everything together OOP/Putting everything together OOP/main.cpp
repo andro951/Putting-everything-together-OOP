@@ -2,30 +2,24 @@
 #include <iostream>
 #include <string>
 #include "functions.h"
+#include "Objects.h"
 using namespace std;
 
 int main()
 {
-	int time = 690; //The start time of the game in minutes where 0 is midnight.
-	bool radiatorAttatchedToFloor = true; //Track if radiator is attatched to the floor.
-	int emptyHands = 2; //Track how many hands can be used to pick things up.
-	bool handcuffed = true; //Track if handcuffs are on the user.
-	bool roomExamined = false; //Track if the room has been examined by the user.
-	bool bagSearched = false; //Track if the bag has been examined by the user.
-	bool carryingRadiator = false; //Track if the user is carrying the radiator.
-	bool carryingHandcuffs = false; //Track if the user is carrying the handcuffs.
-	bool carryingHandgun = false; //Track if the user is carrying the handgun.
-	bool called911 = false; //Track if the user called 911.
-	int timeCalledPolice = 32767; //Initially set to a very high default value to indicate that they were not called.
-
+	Object blah;
+	Object radiator;
+	radiator.setExamineText("The radiator is old and slightly rusted.\n");
+	radiator.setExamineTime(1);
+	radiator.setCommandList("Available commands for radiator: examine, break, pick up, drop\n");
 	displayIntroduction();
-	displayTime(time);
+	displayTime(Object::s_pTime);
 	string command; //Stores the command for the object the user wants to interact with.
 	string object; //Stores the object the user wants to interact with.
 	getUserCommandAndObject("What will you do?\n", command, object); //Get the first command and object from the user.
 																	 //game loop
 	bool gameOver = false; //If gameOver is true, the player WINS!!!
-	while (time < 730 and gameOver != true) //Reapeat until the time has progressed to 730 or the the game has ended for another reason.
+	while (Object::s_Time < 730 and gameOver != true) //Reapeat until the time has progressed to 730 or the the game has ended for another reason.
 
 											//Below is a large if, else if logic structure.  It is used to determine what to output for the user and how to change the game's logic state based on the user's command and object inputs.
 
@@ -34,69 +28,23 @@ int main()
 		{
 			if (command == "examine" || command == "look at" || command == "view")
 			{
-				cout << "The radiator is old and slightly rusted.\n";
-				time += 1;
+				radiator.examine();
 			}
 			else if (command == "move" || command == "remove" || command == "break")
 			{
-				if (radiatorAttatchedToFloor) //If the user hasn't done this before, detatch the radiator.
-				{
-					cout << "After significant effort, you manage to break the radiator off of the wall and are now able to move arround the room, dragging it with you.\n";
-					time += 15;
-					radiatorAttatchedToFloor = false; //This allows the player to use the command, examine room, and move around the room.
-				}
-				else if (handcuffed) //If the user has done this before, provide a useless message based on if they are handcuffed that tries to lead them towards getting the handcuffs off.
-				{
-					cout << "The radiator is already detatched from the wall and you are dragging it with you.\n";
-					time += 1;
-				}
-				else
-				{
-					cout << "The radiator is already detatched from the wall and you are able to move around the room freely.\n";
-					time += 1;
-				}
+				radiator.breakRadiator();
 			}
 			else if (command == "pick up")
 			{
-				if (radiatorAttatchedToFloor) //If attatched to the floor still, they can't pick it up.
-				{
-					cout << "The radiator is attatched to the wall and you are unable to pick it up.\n";
-					time += 5;
-				}
-				else if (carryingRadiator) //If already carrying it, they can't pick it up again.
-				{
-					cout << "You are already carying the radiator.\n";
-					time += 1;
-				}
-				else if (emptyHands < 2) //It requires 2 hands to pick up.  They drop it otherwise.
-				{
-					cout << "Your attepmt to pick up the radiator, but drop it.  Your hands are too full already.";
-					time += 1;
-				}
-				else //Conditions met to pick up the radiator.
-				{
-					cout << "You pick up the radiator.\n";
-					time += 1;
-					emptyHands = 0;
-					carryingRadiator = true;
-				}
+				radiator.pickUp();
 			}
 			else if (command == "drop" || command == "put down")
 			{
-				if (carryingRadiator) //Conditions met to drop the radiator.
-				{
-					cout << "You put down the radiator.\n";
-					emptyHands = 2;
-					time += 1;
-				}
-				else //Provide useless message for trying to drop the radiator when they weren't holding it.
-				{
-					cout << "You are not carying the radiator.\n";
-				}
+				radiator.drop();
 			}
 			else if (command == "list commands for" || command == "list commands" || command == "commands for" || command == "commands")
 			{
-				cout << "Available commands for radiator: examine, break, pick up, drop\n";
+				radiator.listCommands();
 			}
 			else //Any other command for radiator is unrecognized.
 			{
@@ -108,64 +56,64 @@ int main()
 			if (command == "examine" || command == "look at" || command == "view")
 			{
 				cout << "A standard pair of handcuffs.\n";
-				time += 1;
+				Object::s_Time += 1;
 			}
 			else if (command == "pick up" || command == "take")
 			{
-				if (handcuffed) //Can't pick up if still handcuffed.
+				if (Object::s_Handcuffed) //Can't pick up if still handcuffed.
 				{
 					cout << "The handcuffs are still attatched to your hands.  You are unable to pick them up.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 				else
 				{
-					if (carryingHandcuffs) //Can't pick up if already carrying.
+					if (Object::s_CarryingHandcuffs) //Can't pick up if already carrying.
 					{
 						cout << "You are already carrying the handcuffs.\n";
-						time += 1;
+						Object::s_Time += 1;
 					}
 					else //Meets the conditions to pick up the handcuffs.
 					{
 						cout << "You pick up the handcuffs\n";
-						carryingHandcuffs = true;
-						time += 1;
+						Object::s_CarryingHandcuffs = true;
+						Object::s_Time += 1;
 					}
 				}
 			}
 			else if (command == "drop" || command == "put down")
 			{
-				if (carryingHandcuffs) //Meets the conditions to drop the handcuffs.
+				if (Object::s_CarryingHandcuffs) //Meets the conditions to drop the handcuffs.
 				{
 					cout << "You put down the handcuffs.\n";
-					emptyHands += 1;
-					time += 1;
+					Object::s_EmptyHands += 1;
+					Object::s_Time += 1;
 				}
 				else //Not carrying them, gives useless message.
 				{
 					cout << "You are not carying the handcuffs.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 			}
 			else if (command == "unlock")
 			{
-				if (handcuffed)
+				if (Object::s_Handcuffed)
 				{
-					if (bagSearched) //Can only unlock the handcuffs if you know where the key is which is inside the bag.
+					if (Object::s_BagSearched) //Can only unlock the handcuffs if you know where the key is which is inside the bag.
 					{
 						cout << "You unlock the handcuffs.\n";
-						handcuffed = false;
-						time += 3;
+						Object::s_Handcuffed = false;
+						Object::s_Time += 3;
 					}
 					else //Otherwise, you have no way to unlock them.
 					{
 						cout << "You have no way of unlocking the handcuffs.\n";
-						time += 1;
+						Object::s_Time += 1;
 					}
 				}
 				else
 				{
 					cout << "The handcuffs are already unlocked.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 			}
 			else if (command == "list commands for" || command == "list commands" || command == "commands for" || command == "commands")
@@ -181,16 +129,16 @@ int main()
 		{
 			if (command == "examine" || command == "look at" || command == "view")
 			{
-				if (radiatorAttatchedToFloor) //Can't move around the room until the radiator is disconected from the floor.
+				if (Object::s_RadiatorAttatchedToFloor) //Can't move around the room until the radiator is disconected from the floor.
 				{
 					cout << "You can not see or reach the rest of the room.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 				else
 				{
 					cout << "In the room, there is a phone, a bag and a door.\n";
-					roomExamined = true;
-					time += 5;
+					Object::s_RoomExamined = true;
+					Object::s_Time += 5;
 				}
 			}
 			else if (command == "list commands for" || command == "list commands" || command == "commands for" || command == "commands")
@@ -202,20 +150,20 @@ int main()
 				didntRecognizeCommand(command);
 			}
 		}
-		else if (object == "bag" && roomExamined)
+		else if (object == "bag" && Object::s_RoomExamined)
 		{
 			if (command == "examine" || command == "look at" || command == "view")
 			{
-				if (bagSearched)
+				if (Object::s_BagSearched)
 				{
 					cout << "There is nothing else of note in the bag.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 				else
 				{
 					cout << "The bag contains a gun and a handcuff key.\n";
-					bagSearched = true; //Give the player access to the command unlock handcuffs and access to the handgun.
-					time += 1;
+					Object::s_BagSearched = true; //Give the player access to the command unlock handcuffs and access to the handgun.
+					Object::s_Time += 1;
 				}
 			}
 			else if (command == "list commands for" || command == "list commands" || command == "commands for" || command == "commands")
@@ -228,7 +176,7 @@ int main()
 			}
 
 		}
-		else if (object == "handgun" && bagSearched)
+		else if (object == "handgun" && Object::s_BagSearched)
 		{
 			if (command == "examine" || command == "look at" || command == "view")
 			{
@@ -236,38 +184,38 @@ int main()
 			}
 			else if (command == "pick up" || command == "take")
 			{
-				if (carryingHandgun) //Already carrying it.
+				if (Object::s_CarryingHandgun) //Already carrying it.
 				{
 					cout << "You are already carrying the handgun.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 				else
 				{
-					if (emptyHands >= 1) //If you have enough empty hands, you meet the conditions to pick it up.
+					if (Object::s_EmptyHands >= 1) //If you have enough empty hands, you meet the conditions to pick it up.
 					{
 						cout << "You pick up the handgun.\n";
-						emptyHands -= 1;
-						time += 1;
+						Object::s_EmptyHands -= 1;
+						Object::s_Time += 1;
 					}
 					else //Don't have enough empty hands.
 					{
 						cout << "Your attepmt to pick up the handgun, but drop it.  Your hands are too full already.";
-						time += 1;
+						Object::s_Time += 1;
 					}
 				}
 			}
 			else if (command == "drop" || command == "put down")
 			{
-				if (carryingHandgun) //Meets the conditions to drop the handgun.
+				if (Object::s_CarryingHandgun) //Meets the conditions to drop the handgun.
 				{
 					cout << "You put down the handgun.\n";
-					emptyHands += 1;
-					time += 1;
+					Object::s_EmptyHands += 1;
+					Object::s_Time += 1;
 				}
 				else
 				{
 					cout << "You are not carying the handgun.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 			}
 			else if (command == "list commands for" || command == "list commands" || command == "commands for" || command == "commands")
@@ -280,12 +228,12 @@ int main()
 			}
 
 		}
-		else if (object == "phone" && roomExamined)
+		else if (object == "phone" && Object::s_RoomExamined)
 		{
 			if (command == "examine" || command == "look at" || command == "view")
 			{
 				cout << "A typical phone found in a hotel room.\n";
-				time += 1;
+				Object::s_Time += 1;
 			}
 			else if (command == "use" || command == "call")
 			{
@@ -298,18 +246,18 @@ int main()
 					// If the user wants to call 911, they will win at the end if the end is >= 20 minutes from the time they called.
 					if (userAnswer == "911")
 					{
-						called911 = true; //Determines if the program will calculate the time the user called 911 at the end of the time limit.
+						Object::s_Called911 = true; //Determines if the program will calculate the time the user called 911 at the end of the time limit.
 						waitingForValidInput = false;
 						cout << "You inform the police of your situation and hang up the phone.\n";
-						timeCalledPolice = time; //Used to calculate if 911 was called at least 20 minutes before the game was over.
-						time += 5;
+						Object::s_TimeCalledPolice = Object::s_Time; //Used to calculate if 911 was called at least 20 minutes before the game was over.
+						Object::s_Time += 5;
 						//Note that removing the radiator takes 15 minutes and examining the room takes 5 minutes.  If the user does anything else before calling 911, they will not win from it.
 					}
 					else if (userAnswer == "front desk") //The user will inform their captor by calling the front desk and will loose immediatly.
 					{
 						cout << "You inform the front desk of your situation and hang up the phone.\n"
 							<< "The front desk clerk informs you that they will be right up to help.\n";
-						time = 730; //Changes the time to immediatly end the game.
+						Object::s_Time = 730; //Changes the time to immediatly end the game.
 						waitingForValidInput = false;
 					}
 					else //If anything other than 911 or front desk is entered, repeat the waitingForValidInput loop.
@@ -328,19 +276,19 @@ int main()
 			}
 
 		}
-		else if (object == "door" && roomExamined)
+		else if (object == "door" && Object::s_RoomExamined)
 		{
 			if (command == "examine" || command == "look at" || command == "view")
 			{
 				cout << "A typical hotel room door.\n";
-				time += 1;
+				Object::s_Time += 1;
 			}
 			else if (command == "use" || command == "open")
 			{
-				if (handcuffed) //If still handcuffed to the radiator and dragging it around, the user can't leave.
+				if (Object::s_Handcuffed) //If still handcuffed to the radiator and dragging it around, the user can't leave.
 				{
 					cout << "You won't make it far dragging around a radiator.\n";
-					time += 1;
+					Object::s_Time += 1;
 				}
 				else //The user wins the game.
 				{
@@ -359,12 +307,12 @@ int main()
 
 		}
 		//This is a placeholder for adding new objects into the game.
-		else if (object == "" && roomExamined)
+		else if (object == "" && Object::s_RoomExamined)
 		{
 			if (command == "examine" || command == "look at" || command == "view")
 			{
 				cout << ".\n";
-				time += 1;
+				Object::s_Time += 1;
 			}
 			else if (command == "pick up" || command == "take")
 			{
@@ -388,9 +336,9 @@ int main()
 		{
 			if (command == "list" || command == "list of")
 			{
-				if (roomExamined) //Only list the object in the room if they player has examined the room.
+				if (Object::s_RoomExamined) //Only list the object in the room if they player has examined the room.
 				{
-					if (bagSearched) //Only list the objects in the bag if it has been searched.
+					if (Object::s_BagSearched) //Only list the objects in the bag if it has been searched.
 					{
 						cout << "objects: room, radiator, handcuffs, bag, phone, door, handgun\n";
 					}
@@ -417,7 +365,7 @@ int main()
 		else if (object == "wait")
 		{
 			cout << "You paitiently wait a few minutes.";
-			time += 5;
+			Object::s_Time += 5;
 		}
 		else if (object == "help")
 		{
@@ -432,7 +380,7 @@ int main()
 			if (command == "examine" || command == "look at" || command == "view")
 			{
 				cout << ".\n";
-				time += 1;
+				Object::s_Time += 1;
 			}
 			else if (command == "pick up" || command == "take")
 			{
@@ -461,11 +409,11 @@ int main()
 
 		if (gameOver != true) //If the player did not win yet, get a new command and object.
 		{
-			displayTime(time);
+			displayTime(Object::s_pTime);
 			getUserCommandAndObject("What will you do next?\n", command, object); //Get all subsequent commands and objects.  Once each time the game loop repeats.
 		}
 	}
-	if (timeCalledPolice <= 710) //If the player called the police in time, they will win.
+	if (Object::s_TimeCalledPolice <= 710) //If the player called the police in time, they will win.
 	{
 		gameOver = true; //Player wins.
 		cout << "The police arive and escort you home.\n";
@@ -473,7 +421,7 @@ int main()
 	if (gameOver != true) //If player did not win until now, they will loose.  There is no way to win after the captor enters the room.
 	{
 		cout << "A tall figure enters the dark room.\n";
-		if (carryingHandgun)
+		if (Object::s_CarryingHandgun)
 		{
 			//Ask if they will shoot.  If so, they go to prison for shooting the front desk clerk.  Otherwise they are killed.
 			bool waitingForValidInput = true;
